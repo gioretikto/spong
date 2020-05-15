@@ -65,16 +65,16 @@ bool Game::Initialize()
 	left_score = 0;
     right_score = 0;
 
-	left_paddle.x = 0.0 + float(wallThickness);
+	left_paddle.x = 0.0 + Paddle::MARGIN;
 	left_paddle.y = float(WIND_HEIGHT)/2.0f;
 	
-	right_paddle.x = float(WIND_WIDTH) - float(wallThickness);
+	right_paddle.x = float(WIND_WIDTH) - Paddle::MARGIN;
 	right_paddle.y = float(WIND_HEIGHT)/2.0f;
 	
-	ballPos.x = float(WIND_WIDTH)/2.0f;
-	ballPos.y = float(WIND_HEIGHT)/2.0f;
-	ballVel.x = -415.0f;
-	ballVel.y = 415.0f;
+	ball.x = float(WIND_WIDTH)/2.0f;
+	ball.y = float(WIND_HEIGHT)/2.0f;
+	ball.vel_x = -415.0f;
+	ball.vel_y = 415.0f;
 	return true;
 }
 
@@ -179,57 +179,57 @@ void Game::UpdateGame()
 		left_paddle.y += left_paddle.direction * 500.0f * deltaTime;
 		
 		// Make sure paddle doesn't move off screen!
-		if (left_paddle.y < (paddleHeight/2.0f + wallThickness))
+		if (left_paddle.y < (Paddle::HEIGHT/2.0f + wallThickness))
 		{
-			left_paddle.y = paddleHeight/2.0f + wallThickness;
+			left_paddle.y = Paddle::HEIGHT/2.0f + wallThickness;
 		}
 		
-		else if (left_paddle.y > (float(WIND_HEIGHT) - paddleHeight/2.0f - wallThickness))
+		else if (left_paddle.y > (float(WIND_HEIGHT) - Paddle::HEIGHT/2.0f - wallThickness))
 		{
-			left_paddle.y = float(WIND_HEIGHT) - paddleHeight/2.0f - wallThickness;
+			left_paddle.y = float(WIND_HEIGHT) - Paddle::HEIGHT/2.0f - wallThickness;
 		}
 	}
 	
 	// Update ball position based on ball velocity
-	ballPos.x += ballVel.x * deltaTime;
-	ballPos.y += ballVel.y * deltaTime;
+	ball.x += ball.vel_x * deltaTime;
+	ball.y += ball.vel_y * deltaTime;
 	
 	// Bounce if needed
 	// Did we intersect with the paddle?
-	float diff = left_paddle.y - ballPos.y;
+	float diff = left_paddle.y - ball.y;
 	// Take absolute value of difference
 	diff = (diff > 0.0f) ? diff : -diff;
 	
 	if (
 		// Our y-difference is small enough
-		diff <= paddleHeight / 2.0f &&
+		diff <= Paddle::HEIGHT / 2.0f &&
 		// We are in the correct x-position
-		ballPos.x <= 25.0f && ballPos.x >= 20.0f &&
+		ball.x <= 25.0f && ball.x >= 20.0f &&
 		// The ball is moving to the left
-		ballVel.x < 0.0f)
+		ball.vel_x < 0.0f)
 	{
-		ballVel.x *= -1.0f;
+		ball.vel_x *= -1.0f;
 	}
 	// Did the ball go off the screen? (if so, end game)
-	else if (ballPos.x <= 0.0f)
+	else if (ball.x <= 0.0f)
 	{
 		isRunning = false;
 	}
 	// Did the ball collide with the right wall?
-	else if (ballPos.x >= (float(WIND_WIDTH) - wallThickness) && ballVel.x > 0.0f)
+	else if (ball.x >= (float(WIND_WIDTH) - wallThickness) && ball.vel_x > 0.0f)
 	{
-		ballVel.x *= -1.0f;
+		ball.vel_x *= -1.0f;
 	}
 	
 	// Did the ball collide with the top wall?
-	if (ballPos.y <= wallThickness && ballVel.y < 0.0f)
+	if (ball.y <= wallThickness && ball.vel_y < 0.0f)
 	{
-		ballVel.y *= -1;
+		ball.vel_y *= -1;
 	}
 	// Did the ball collide with the bottom wall?
-	else if (ballPos.y >= (WIND_HEIGHT - wallThickness) && ballVel.y > 0.0f)
+	else if (ball.y >= (WIND_HEIGHT - wallThickness) && ball.vel_y > 0.0f)
 	{
-		ballVel.y *= -1;
+		ball.vel_y *= -1;
 	}
 }
 
@@ -269,29 +269,29 @@ void Game::GenerateOutput()
 	// Draw Player paddle
 	SDL_Rect paddle{
 		static_cast<int>(left_paddle.x),
-		static_cast<int>(left_paddle.y - paddleHeight/2),
-		wallThickness,
-		static_cast<int>(paddleHeight)
+		static_cast<int>(left_paddle.y - Paddle::HEIGHT/2),
+		Paddle::WIDTH,
+		static_cast<int>(Paddle::HEIGHT)
 	};
 	SDL_RenderFillRect(renderer, &paddle);	
 	
 	// Draw CPU paddle
 	SDL_Rect paddle_cpu{
 		static_cast<int>(right_paddle.x),
-		static_cast<int>(right_paddle.y - paddleHeight/2),
-		wallThickness,
-		static_cast<int>(paddleHeight)
+		static_cast<int>(right_paddle.y - Paddle::HEIGHT/2),
+		Paddle::WIDTH,
+		static_cast<int>(Paddle::HEIGHT)
 	};
 	SDL_RenderFillRect(renderer, &paddle_cpu);
 	
 	// Draw ball
-	SDL_Rect ball{
-		static_cast<int>(ballPos.x - wallThickness/2),
-		static_cast<int>(ballPos.y - wallThickness/2),
+	SDL_Rect ball_sprite{
+		static_cast<int>(ball.x - wallThickness/2),
+		static_cast<int>(ball.y - wallThickness/2),
 		wallThickness,
 		wallThickness
 	};
-	SDL_RenderFillRect(renderer, &ball);
+	SDL_RenderFillRect(renderer, &ball_sprite);
 	
 	// Swap front buffer and back buffer
 	SDL_RenderPresent(renderer);

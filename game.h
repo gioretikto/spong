@@ -1,15 +1,9 @@
 #include <SDL2/SDL.h>
 #include "paddle.h"
-
-// Vector2 struct just stores x/y coordinates
-// (for now)
-struct Vector
-{
-	float x;
-	float y;
-};
+#include "ball.h"
 
 class Paddle;
+class Ball;
 
 // Game class
 class Game
@@ -41,6 +35,8 @@ private:
 	
     Paddle left_paddle;
     Paddle right_paddle;
+    
+    Ball ball;
 	
     // Holds text indicating player 1 score (left).
     SDL_Texture* font_image_left_score;
@@ -51,9 +47,4 @@ private:
     // Scores.
     int left_score;
     int right_score;
-	
-	// Position of ball
-	Vector ballPos;
-	// Velocity of ball
-	Vector ballVel;
 };
