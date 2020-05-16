@@ -193,7 +193,7 @@ void Game::UpdateGame()
 			left_paddle.y = Paddle::HEIGHT/2.0f + wallThickness;
 		}
 		
-		else if (left_paddle.y > (float(WIND_HEIGHT) - Paddle::HEIGHT/2.0f - wallThickness))
+		if (left_paddle.y > (float(WIND_HEIGHT) - Paddle::HEIGHT/2.0f - wallThickness))
 		{
 			left_paddle.y = float(WIND_HEIGHT) - Paddle::HEIGHT/2.0f - wallThickness;
 		}
@@ -201,47 +201,60 @@ void Game::UpdateGame()
 	
 	// Update ball position based on ball velocity
 	ball.x += ball.vel_x * deltaTime;
-	ball.y += ball.vel_y * deltaTime;
+	ball.y += ball.vel_y * deltaTime;	
 	
-	// Bounce if needed
-	if(ball.collides_with(left_paddle))
-		;
-	else if (ball.collides_with(right_paddle))
-		;
 	// Did the ball go off the screen? (if so, end game)
-	else if (ball.x <= 0.0f)
+	if (ball.x <= 0.0f || ball.x >= float(WIND_WIDTH))
 	{
 		isRunning = false;
 	}
-	// Did the ball collide with the right wall?
-	else if (ball.x >= (float(WIND_WIDTH) - wallThickness) && ball.vel_x > 0.0f)
-	{
-		ball.vel_x*= -1.0f;
-	}
 	
-	// Did the ball collide with the top wall?
-	if (ball.y <= wallThickness && ball.vel_y < 0.0f)
-	{
-		ball.vel_y *= -1;
-	}
-	// Did the ball collide with the bottom wall?
-	else if (ball.y >= (float(WIND_HEIGHT) - wallThickness) &&
-		ball.vel_y > 0.0f)
-	{
-		ball.vel_y *= -1;
-	}
-
-  if (ball.x > WIND_WIDTH*3/5 && ball.vel_x > 0 ) {
-	  
-	  if (ball.y > right_paddle.y + right_paddle.HEIGHT/2) {  // If the ball is below the center of the paddle
-	  	right_paddle.y = right_paddle.y + ball.vel_x/50;                  // Move downwards
-	  }
+	else {	
+	
+		if (ball.vel_x < 0) {
 		
-	  else if (ball.y < right_paddle.y + right_paddle.HEIGHT/2) {  // If the ball is above the center of the paddle
-	  	right_paddle.y = right_paddle.y - ball.vel_x/50;                     // Move upwards
-	  }  
-  }
-  
+			if (ball.collides_with(left_paddle)) {
+				;
+			}
+		}
+		
+		else {
+			if (ball.collides_with(right_paddle)) {
+				;
+			}
+		}
+		
+		// Did the ball collide with the right wall?
+		if (ball.x >= (float(WIND_WIDTH) - wallThickness) && ball.vel_x > 0.0f)
+		{
+			ball.vel_x*= -1.0f;
+		}
+		
+		// Did the ball collide with the top wall?
+		if (ball.y <= wallThickness && ball.vel_y < 0.0f)
+		{
+			ball.vel_y *= -1;
+		}
+		
+		// Did the ball collide with the bottom wall?
+		if (ball.y >= (float(WIND_HEIGHT) - wallThickness) &&
+			ball.vel_y > 0.0f)
+		{
+			ball.vel_y *= -1;
+		}
+		
+		/* AI move for CPU paddle */
+  		if (ball.x > WIND_WIDTH * 3/5 && ball.vel_x > 0) {
+		  
+			if (ball.y > right_paddle.y + right_paddle.HEIGHT/2) {  // If the ball is below the center of the paddle
+		  		right_paddle.y = right_paddle.y + ball.vel_x/40;      // Move downwards
+		  	}
+				
+		  	else {  						// If the ball is above the center of the paddle
+		  		right_paddle.y = right_paddle.y - ball.vel_x/40;     // Move upwards
+		  	}
+  		}
+	}
 }
 
 void Game::GenerateOutput()
