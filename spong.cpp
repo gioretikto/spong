@@ -60,7 +60,7 @@ bool Game::Initialize(int argc, char *argv[])
 	
 	// Controllers.
     if (argc == 2) {
-        if ( strcmp(argv[1], "keyboard") == 0 ) {
+        if (strcmp(argv[1], "keyboard") == 0 ) {
             controller = keyboard;
         } else if ( strcmp(argv[1], "joystick") == 0 ) {
             controller = joystick;
@@ -230,6 +230,18 @@ void Game::UpdateGame()
 	{
 		ball.vel_y *= -1;
 	}
+
+  if (ball.x > WIND_WIDTH*3/5 && ball.vel_x > 0 ) {
+	  
+	  if (ball.y > right_paddle.y + right_paddle.HEIGHT/2) {  // If the ball is below the center of the paddle
+	  	right_paddle.y = right_paddle.y + ball.vel_x/50;                  // Move downwards
+	  }
+		
+	  else if (ball.y < right_paddle.y + right_paddle.HEIGHT/2) {  // If the ball is above the center of the paddle
+	  	right_paddle.y = right_paddle.y - ball.vel_x/50;                     // Move upwards
+	  }  
+  }
+  
 }
 
 void Game::GenerateOutput()
