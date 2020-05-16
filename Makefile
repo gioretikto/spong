@@ -2,7 +2,7 @@ CXX = g++
 
 CXXFLAGS = `pkg-config --cflags --libs sdl2` -ggdb3 -Wall -std=c++17 -Wextra
 
-SRCS = main.cpp spong.cpp
+SRCS = main.cpp spong.cpp ball.cpp
 
 OBJS = $(SRCS:.c=.o)
 

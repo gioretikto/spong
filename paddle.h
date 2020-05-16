@@ -9,7 +9,7 @@ class Paddle {
 	int direction;
 	
 	// Paddle dimensions
-    static const float HEIGHT = 100.0f;
-    static const float WIDTH = 8.0f;
-    static const float MARGIN = 10.0f;
+    static constexpr float HEIGHT = 100.0f;
+    static constexpr float WIDTH = 8.0f;
+    static constexpr float MARGIN = 10.0f;
 };

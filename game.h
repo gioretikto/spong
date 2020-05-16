@@ -1,5 +1,5 @@
+#pragma once
 #include <SDL2/SDL.h>
-#include "paddle.h"
 #include "ball.h"
 
 class Paddle;
@@ -11,11 +11,15 @@ class Game
 public:
 	Game();
 	// Initialize the game
-	bool Initialize();
+	bool Initialize(int argc, char *argv[]);
 	// Runs the game loop until the game is over
 	void RunLoop();
 	// Shutdown the game
 	void Shutdown();
+	
+	static constexpr int wallThickness = 15;
+	static constexpr int WIND_WIDTH = 1024;
+	static constexpr int WIND_HEIGHT = 720;
 private:
 	// Helper functions for the game loop
 	void ProcessInput();
@@ -37,7 +41,12 @@ private:
     Paddle right_paddle;
     
     Ball ball;
-	
+    
+    // Controllers.
+    enum Controllers { mouse, keyboard, joystick };
+    Controllers controller;
+    SDL_Joystick *gamepad;  // Holds joystick information.
+    
     // Holds text indicating player 1 score (left).
     SDL_Texture* font_image_left_score;
 

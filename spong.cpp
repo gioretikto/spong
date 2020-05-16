@@ -1,9 +1,5 @@
 #include "game.h"
 
-const int wallThickness = 15;
-const int WIND_WIDTH = 1024;
-const int WIND_HEIGHT = 720;
-
 Game::Game()
 :window(nullptr)
 ,renderer(nullptr)
@@ -17,10 +13,10 @@ Game::Game()
 Paddle::Paddle()
 :direction(0)
 {
-
+ 	
 }
 
-bool Game::Initialize()
+bool Game::Initialize(int argc, char *argv[])
 {
 	// Initialize SDL
 	int sdlResult = SDL_Init(SDL_INIT_VIDEO);
@@ -61,6 +57,19 @@ bool Game::Initialize()
 		SDL_Log("Failed to create renderer: %s", SDL_GetError());
 		return false;
 	}
+	
+	// Controllers.
+    if (argc == 2) {
+        if ( strcmp(argv[1], "keyboard") == 0 ) {
+            controller = keyboard;
+        } else if ( strcmp(argv[1], "joystick") == 0 ) {
+            controller = joystick;
+        } else {
+            controller = mouse;
+        }
+    } else {
+        controller = mouse;  // Default controller.
+    }
 
 	left_score = 0;
     right_score = 0;
@@ -195,21 +204,10 @@ void Game::UpdateGame()
 	ball.y += ball.vel_y * deltaTime;
 	
 	// Bounce if needed
-	// Did we intersect with the paddle?
-	float diff = left_paddle.y - ball.y;
-	// Take absolute value of difference
-	diff = (diff > 0.0f) ? diff : -diff;
-	
-	if (
-		// Our y-difference is small enough
-		diff <= Paddle::HEIGHT / 2.0f &&
-		// We are in the correct x-position
-		ball.x <= 25.0f && ball.x >= 20.0f &&
-		// The ball is moving to the left
-		ball.vel_x < 0.0f)
-	{
-		ball.vel_x *= -1.0f;
-	}
+	if(ball.collides_with(left_paddle))
+		;
+	else if (ball.collides_with(right_paddle))
+		;
 	// Did the ball go off the screen? (if so, end game)
 	else if (ball.x <= 0.0f)
 	{
@@ -218,7 +216,7 @@ void Game::UpdateGame()
 	// Did the ball collide with the right wall?
 	else if (ball.x >= (float(WIND_WIDTH) - wallThickness) && ball.vel_x > 0.0f)
 	{
-		ball.vel_x *= -1.0f;
+		ball.vel_x*= -1.0f;
 	}
 	
 	// Did the ball collide with the top wall?
@@ -227,7 +225,8 @@ void Game::UpdateGame()
 		ball.vel_y *= -1;
 	}
 	// Did the ball collide with the bottom wall?
-	else if (ball.y >= (WIND_HEIGHT - wallThickness) && ball.vel_y > 0.0f)
+	else if (ball.y >= (float(WIND_HEIGHT) - wallThickness) &&
+		ball.vel_y > 0.0f)
 	{
 		ball.vel_y *= -1;
 	}
@@ -270,8 +269,8 @@ void Game::GenerateOutput()
 	SDL_Rect paddle{
 		static_cast<int>(left_paddle.x),
 		static_cast<int>(left_paddle.y - Paddle::HEIGHT/2),
-		Paddle::WIDTH,
-		static_cast<int>(Paddle::HEIGHT)
+		static_cast<int>(left_paddle.WIDTH),
+		static_cast<int>(left_paddle.HEIGHT)
 	};
 	SDL_RenderFillRect(renderer, &paddle);	
 	
@@ -279,19 +278,14 @@ void Game::GenerateOutput()
 	SDL_Rect paddle_cpu{
 		static_cast<int>(right_paddle.x),
 		static_cast<int>(right_paddle.y - Paddle::HEIGHT/2),
-		Paddle::WIDTH,
-		static_cast<int>(Paddle::HEIGHT)
+		static_cast<int>(right_paddle.WIDTH),
+		static_cast<int>(right_paddle.HEIGHT)
 	};
 	SDL_RenderFillRect(renderer, &paddle_cpu);
 	
 	// Draw ball
-	SDL_Rect ball_sprite{
-		static_cast<int>(ball.x - wallThickness/2),
-		static_cast<int>(ball.y - wallThickness/2),
-		wallThickness,
-		wallThickness
-	};
-	SDL_RenderFillRect(renderer, &ball_sprite);
+	SDL_Rect spong_ball {static_cast<int>(ball.x), static_cast<int>(ball.y), ball.DIAMETER, ball.DIAMETER };
+	SDL_RenderFillRect(renderer, &spong_ball);
 	
 	// Swap front buffer and back buffer
 	SDL_RenderPresent(renderer);
