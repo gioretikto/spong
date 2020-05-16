@@ -5,7 +5,7 @@ Game::Game()
 ,renderer(nullptr)
 ,ticksCount(0)
 ,isRunning(true)
-,isPaused(false)
+,isPaused(true)
 {
 	
 }
@@ -45,6 +45,13 @@ bool Game::Initialize(int argc, char *argv[])
 		return false;
 	}
 	
+	//Sounds
+	// Initialize SDL_mixer.
+    Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 1024);
+    paddle_sound = Mix_LoadWAV("resources/sounds/paddle_hit.wav");
+    // Load score sound.
+    score_sound = Mix_LoadWAV("resources/sounds/score_update.wav");
+	
 	//// Create SDL renderer
 	renderer = SDL_CreateRenderer(
 		window, // Window to create renderer for
@@ -74,10 +81,10 @@ bool Game::Initialize(int argc, char *argv[])
 	left_score = 0;
     right_score = 0;
 
-	left_paddle.x = 0.0 + Paddle::MARGIN;
+	left_paddle.x = 0.0 + left_paddle.MARGIN;
 	left_paddle.y = float(WIND_HEIGHT)/2.0f;
 	
-	right_paddle.x = float(WIND_WIDTH) - Paddle::MARGIN;
+	right_paddle.x = float(WIND_WIDTH) - right_paddle.MARGIN;
 	right_paddle.y = float(WIND_HEIGHT)/2.0f;
 	
 	ball.x = float(WIND_WIDTH)/2.0f;
@@ -93,7 +100,7 @@ void Game::RunLoop()
 	{
 		ProcessInput();
 		
-		if (isPaused == true)
+		if (isPaused != true)
 			UpdateGame();
 			
 		GenerateOutput();
@@ -206,7 +213,9 @@ void Game::UpdateGame()
 	// Did the ball go off the screen? (if so, end game)
 	if (ball.x <= 0.0f || ball.x >= float(WIND_WIDTH))
 	{
-		isRunning = false;
+		Mix_PlayChannel(-1, score_sound, 0);
+		isPaused = true;
+		ball.reset(left_paddle, right_paddle);
 	}
 	
 	else {	
@@ -214,20 +223,14 @@ void Game::UpdateGame()
 		if (ball.vel_x < 0) {
 		
 			if (ball.collides_with(left_paddle)) {
-				;
+				Mix_PlayChannel(-1, paddle_sound, 0);  // Play collision sound.
 			}
 		}
 		
 		else {
 			if (ball.collides_with(right_paddle)) {
-				;
+				Mix_PlayChannel(-1, paddle_sound, 0);  // Play collision sound.
 			}
-		}
-		
-		// Did the ball collide with the right wall?
-		if (ball.x >= (float(WIND_WIDTH) - wallThickness) && ball.vel_x > 0.0f)
-		{
-			ball.vel_x*= -1.0f;
 		}
 		
 		// Did the ball collide with the top wall?
@@ -293,7 +296,7 @@ void Game::GenerateOutput()
 	// Draw Player paddle
 	SDL_Rect paddle{
 		static_cast<int>(left_paddle.x),
-		static_cast<int>(left_paddle.y - Paddle::HEIGHT/2),
+		static_cast<int>(left_paddle.y - left_paddle.HEIGHT/2),
 		static_cast<int>(left_paddle.WIDTH),
 		static_cast<int>(left_paddle.HEIGHT)
 	};
@@ -302,7 +305,7 @@ void Game::GenerateOutput()
 	// Draw CPU paddle
 	SDL_Rect paddle_cpu{
 		static_cast<int>(right_paddle.x),
-		static_cast<int>(right_paddle.y - Paddle::HEIGHT/2),
+		static_cast<int>(right_paddle.y - right_paddle.HEIGHT/2),
 		static_cast<int>(right_paddle.WIDTH),
 		static_cast<int>(right_paddle.HEIGHT)
 	};
@@ -320,5 +323,10 @@ void Game::Shutdown()
 {
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
+	
+	// Quit SDL_mixer.
+    Mix_CloseAudio();
+    
+    Mix_FreeChunk(paddle_sound);
 	SDL_Quit();
 }

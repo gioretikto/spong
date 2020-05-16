@@ -17,4 +17,5 @@ public:
     static constexpr int DIAMETER = 10;
     
  	bool collides_with(const Paddle& paddle);
+	void reset(Paddle& left_paddle, Paddle& right_paddle);
 };

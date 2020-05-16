@@ -1,6 +1,6 @@
 CXX = g++
 
-CXXFLAGS = `pkg-config --cflags --libs sdl2` -ggdb3 -Wall -std=c++17 -Wextra
+CXXFLAGS = `pkg-config --cflags --libs sdl2` -lSDL2_mixer -Wall -std=c++17 -Wextra
 
 SRCS = main.cpp spong.cpp ball.cpp
 
