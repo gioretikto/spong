@@ -43,7 +43,7 @@ private:
     Ball ball;
     
     // Controllers.
-    enum Controllers { mouse, keyboard, joystick };
+    enum Controllers {mouse, keyboard, joystick};
     Controllers controller;
     SDL_Joystick *gamepad;  // Holds joystick information.
     

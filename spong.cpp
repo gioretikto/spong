@@ -284,7 +284,7 @@ void Game::GenerateOutput()
 	SDL_RenderFillRect(renderer, &paddle_cpu);
 	
 	// Draw ball
-	SDL_Rect spong_ball {static_cast<int>(ball.x), static_cast<int>(ball.y), ball.DIAMETER, ball.DIAMETER };
+	SDL_Rect spong_ball {static_cast<int>(ball.x), static_cast<int>(ball.y), ball.DIAMETER, ball.DIAMETER};
 	SDL_RenderFillRect(renderer, &spong_ball);
 	
 	// Swap front buffer and back buffer
