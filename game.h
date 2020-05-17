@@ -29,7 +29,7 @@ private:
 	void ProcessInput();
 	void UpdateGame();
 	void GenerateOutput();
-	void renderText(const std::string& message);
+	SDL_Texture* renderText(const std::string& message);
  	void reset();
 
 	// Window created by SDL
@@ -44,8 +44,8 @@ private:
 	
 	bool isPaused;
 	
-    Paddle left_paddle;
-    Paddle right_paddle;
+    Paddle left_paddle = {SDL_Rect{WIND_WIDTH * 4 / 10, WIND_HEIGHT / 12, 30, 30}};
+    Paddle right_paddle = {SDL_Rect{WIND_WIDTH * 6 / 10 - 12, WIND_HEIGHT/ 12, 30, 30}};
     
     Ball ball;
     

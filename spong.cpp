@@ -8,17 +8,14 @@ Game::Game()
 ,isRunning(true)
 ,isPaused(true)
 ,controller(keyboard)
+,left_score_changed(false)
+,right_score_changed(false)
+,left_score(0)
+,right_score(0)
 ,font_image_left_score(NULL)
 ,font_image_right_score(NULL)
 {
 	
-}
-
-Paddle::Paddle()
-:direction(0),
-score(0)
-{
- 	
 }
 
 bool Game::Initialize(int argc, char *argv[])
@@ -52,7 +49,7 @@ bool Game::Initialize(int argc, char *argv[])
 	
 	TTF_Init();  // Initialize font.
 	
-	//Sounds
+	// Sounds
 	// Initialize SDL_mixer
     Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 1024);
     
@@ -86,18 +83,11 @@ bool Game::Initialize(int argc, char *argv[])
         }
     }
     
-    // Scores
-    left_score = 0;
-    right_score = 0;
+    font_image_left_score = renderText (std::to_string(left_score));
+    SDL_RenderCopy(renderer, font_image_left_score, NULL, &left_paddle.Message_rect);
     
-    left_paddle.Message_rect(WIND_WIDTH * 4 / 10, WIND_HEIGHT / 12, 30, 30);
-    right_paddle.Message_rect(WIND_WIDTH * 6 / 10 - 12, WIND_HEIGHT/ 12, 30, 30); 
-
-    // Indicates when rendering new score is necessary
-    left_score_changed = false;
-
-    // Indicates when rendering new score is necessary
-    right_score_changed = false;
+    font_image_right_score = renderText (std::to_string(right_score));
+    SDL_RenderCopy(renderer, font_image_left_score, NULL, &right_paddle.Message_rect);
 	
 	reset();
 
@@ -347,7 +337,7 @@ void Game::GenerateOutput()
         
     }
     
-   	SDL_RenderCopy(renderer, font_image_left_score, NULL, left_paddle.Message_rect)
+   	SDL_RenderCopy(renderer, font_image_left_score, NULL, &left_paddle.Message_rect);
 
     if (right_score_changed) {
     
@@ -356,7 +346,7 @@ void Game::GenerateOutput()
         
     }
 	
-   	SDL_RenderCopy(renderer, font_image_right_score, NULL, right_paddle.Message_rect)
+   	SDL_RenderCopy(renderer, font_image_right_score, NULL, &right_paddle.Message_rect);
 	
 	// Swap front buffer and back buffer
 	SDL_RenderPresent(renderer);
@@ -385,11 +375,11 @@ void Game::reset() {
 
 SDL_Texture* Game::renderText(const std::string& message) {
 
-	TTF_Font* Sans = TTF_OpenFont("resources/fonts/NES-Chimera.ttf", 24); //this opens a font style and sets a size
+	TTF_Font* Chimera = TTF_OpenFont("resources/fonts/NES-Chimera.ttf", 24); //this opens a font style and sets a size
 
 	SDL_Color White = {255, 255, 255, 255};  // this is the color in rgb format
 
-	SDL_Surface* surfaceMessage = TTF_RenderText_Solid(Sans, message.c_str(), White); // as TTF_RenderText_Solid could only be used on SDL_Surface then you have to create the surface first
+	SDL_Surface* surfaceMessage = TTF_RenderText_Solid(Chimera, message.c_str(), White); // as TTF_RenderText_Solid could only be used on SDL_Surface then you have to create the surface first
 
 	SDL_Texture* Message = SDL_CreateTextureFromSurface(Game::renderer, surfaceMessage); //now you can convert it into a texture
 
