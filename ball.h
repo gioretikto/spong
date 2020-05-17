@@ -1,5 +1,5 @@
 #pragma once
-#include <cmath>
+#include <SDL2/SDL_mixer.h>                 // SDL sound library.
 #include "paddle.h"
 
 class Ball {
@@ -16,6 +16,8 @@ public:
  	// Ball dimensions
     static constexpr int DIAMETER = 10;
     
+    // Holds sound produced after ball collides with paddle.
+    Mix_Chunk* paddle_sound;
+    
  	bool collides_with(const Paddle& paddle);
-	void reset(Paddle& left_paddle, Paddle& right_paddle);
 };

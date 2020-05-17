@@ -1,6 +1,5 @@
 #pragma once
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_mixer.h>                 // SDL sound library.
 #include "ball.h"
 
 class Paddle;
@@ -49,10 +48,8 @@ private:
     Controllers controller;
     SDL_Joystick *gamepad;  // Holds joystick information.
     
-    // Sounds.
-    // Holds sound produced after ball collides with paddle.
-    Mix_Chunk* paddle_sound;
-    
+    // Sounds
+        
     Mix_Chunk* score_sound;
     
     // Holds text indicating player 1 score (left).
@@ -61,7 +58,7 @@ private:
     // Holds text indicating palyer 2 score (right).
     SDL_Texture* font_image_right_score;
     
-    // Scores.
+    // Scores
     int left_score;
     int right_score;
 };

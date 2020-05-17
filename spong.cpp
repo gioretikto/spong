@@ -11,7 +11,8 @@ Game::Game()
 }
 
 Paddle::Paddle()
-:direction(0)
+:direction(0),
+score(0)
 {
  	
 }
@@ -48,9 +49,11 @@ bool Game::Initialize(int argc, char *argv[])
 	//Sounds
 	// Initialize SDL_mixer.
     Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 1024);
-    paddle_sound = Mix_LoadWAV("resources/sounds/paddle_hit.wav");
-    // Load score sound.
-    score_sound = Mix_LoadWAV("resources/sounds/score_update.wav");
+    
+    ball.paddle_sound = Mix_LoadWAV("resources/sounds/ball_paddle_hit.wav");
+    
+    // Load score sound
+    score_sound = Mix_LoadWAV("resources/sounds/score.wav");
 	
 	//// Create SDL renderer
 	renderer = SDL_CreateRenderer(
@@ -81,10 +84,10 @@ bool Game::Initialize(int argc, char *argv[])
 	left_score = 0;
     right_score = 0;
 
-	left_paddle.x = 0.0 + left_paddle.MARGIN;
+	left_paddle.x = 0.0 + left_paddle.WIDTH;
 	left_paddle.y = float(WIND_HEIGHT)/2.0f;
 	
-	right_paddle.x = float(WIND_WIDTH) - right_paddle.MARGIN;
+	right_paddle.x = float(WIND_WIDTH) - 2 * left_paddle.WIDTH;
 	right_paddle.y = float(WIND_HEIGHT)/2.0f;
 	
 	ball.x = float(WIND_WIDTH)/2.0f;
@@ -211,11 +214,15 @@ void Game::UpdateGame()
 	ball.y += ball.vel_y * deltaTime;	
 	
 	// Did the ball go off the screen? (if so, end game)
-	if (ball.x <= 0.0f || ball.x >= float(WIND_WIDTH))
+	if (ball.x <= 0.0f) {
+		right_paddle.score++;
+		reset();		
+	}
+	
+	else if (ball.x >= float(WIND_WIDTH))
 	{
-		Mix_PlayChannel(-1, score_sound, 0);
-		isPaused = true;
-		ball.reset(left_paddle, right_paddle);
+		left_paddle.score++;
+		reset();
 	}
 	
 	else {	
@@ -223,14 +230,20 @@ void Game::UpdateGame()
 		if (ball.vel_x < 0) {
 		
 			if (ball.collides_with(left_paddle)) {
-				Mix_PlayChannel(-1, paddle_sound, 0);  // Play collision sound.
+				;
 			}
 		}
 		
 		else {
 			if (ball.collides_with(right_paddle)) {
-				Mix_PlayChannel(-1, paddle_sound, 0);  // Play collision sound.
+				;
 			}
+		}
+		
+		// Did the ball collide with the right wall?
+		if (ball.x >= (float(WIND_WIDTH) - wallThickness) && ball.vel_x > 0.0f)
+		{
+			ball.vel_x *= -1.0f;
 		}
 		
 		// Did the ball collide with the top wall?
@@ -279,8 +292,8 @@ void Game::GenerateOutput()
 	
 	// Draw top wall
 	SDL_Rect wall{
-		0,			// Top left x
-		0,			// Top left y
+		0,				// Top left x
+		0,				// Top left y
 		WIND_WIDTH,		// Width
 		wallThickness	// Height
 	};
@@ -327,6 +340,25 @@ void Game::Shutdown()
 	// Quit SDL_mixer.
     Mix_CloseAudio();
     
-    Mix_FreeChunk(paddle_sound);
+    Mix_FreeChunk(ball.paddle_sound);
+    Mix_FreeChunk(score_sound);
 	SDL_Quit();
+}
+
+// Reset ball to initial state.
+void Game::reset() {
+
+	Mix_PlayChannel(-1, score_sound, 0);
+	
+	isPaused = true;
+
+    ball.x = WIND_WIDTH/2 - ball.DIAMETER/2;
+    ball.y = WIND_HEIGHT/2;
+    
+	left_paddle.x = 0.0 + left_paddle.WIDTH;
+	left_paddle.y = float(WIND_HEIGHT)/2.0f;
+	
+	right_paddle.x = float(WIND_WIDTH) - 2 * right_paddle.WIDTH;
+	right_paddle.y = float(WIND_HEIGHT)/2.0f;
+	
 }

@@ -6,7 +6,7 @@ SRCS = main.cpp spong.cpp ball.cpp
 
 OBJS = $(SRCS:.cpp=.o)
 
-game: $(OBJS)
+spong: $(OBJS)
 	$(CXX) -o $@ $^ $(CXXFLAGS)
 
 clean:
