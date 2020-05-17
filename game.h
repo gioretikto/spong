@@ -1,6 +1,10 @@
 #pragma once
 #include <SDL2/SDL.h>
+#include <string>
+#include <iostream>
 #include "ball.h"
+
+void renderText(const std::string& message, SDL_Renderer *renderer, SDL_Texture* Message, int x, int y);
 
 class Paddle;
 class Ball;
@@ -18,13 +22,14 @@ public:
 	void Shutdown();
 	
 	static constexpr int wallThickness = 15;
-	static constexpr int WIND_WIDTH = 1024;
-	static constexpr int WIND_HEIGHT = 720;
+	static const int WIND_WIDTH = 1024;
+	static const int WIND_HEIGHT = 720;
 private:
 	// Helper functions for the game loop
 	void ProcessInput();
 	void UpdateGame();
 	void GenerateOutput();
+	void renderText(const std::string& message);
  	void reset();
 
 	// Window created by SDL
@@ -32,6 +37,7 @@ private:
 	// Renderer for 2D drawing
 	SDL_Renderer* renderer;
 	// Number of ticks since start of game
+	
 	Uint32 ticksCount;
 	// Game should continue to run
 	bool isRunning;
@@ -44,21 +50,28 @@ private:
     Ball ball;
     
     // Controllers.
-    enum Controllers {mouse, keyboard, joystick};
+    enum Controllers {mouse, keyboard};
     Controllers controller;
-    SDL_Joystick *gamepad;  // Holds joystick information.
+    
+    int mouse_x, mouse_y;  // Mouse coordinates.
     
     // Sounds
         
     Mix_Chunk* score_sound;
     
-    // Holds text indicating player 1 score (left).
-    SDL_Texture* font_image_left_score;
+    // Indicates when rendering new score is necessary
+    bool left_score_changed;
 
-    // Holds text indicating palyer 2 score (right).
-    SDL_Texture* font_image_right_score;
+    // Indicates when rendering new score is necessary
+    bool right_score_changed;
     
     // Scores
     int left_score;
     int right_score;
+    
+    // Holds text indicating player score (left)
+    SDL_Texture* font_image_left_score;
+
+    // Holds text indicating CPU score (right)
+    SDL_Texture* font_image_right_score;
 };

@@ -14,6 +14,11 @@ bool Ball::collides_with(const Paddle& paddle) {
 		x <= (paddle.x + paddle.WIDTH) && x >= paddle.x)
 	{
 		vel_x *= -1.0f;
+		
+		/*Increase speed of a 100th */
+		vel_x += vel_x/60;
+		vel_y += vel_y/60;
+		
 		Mix_PlayChannel(-1, paddle_sound, 0);  // Play collision sound
 		return true;
 	}

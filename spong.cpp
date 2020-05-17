@@ -1,4 +1,5 @@
 #include "game.h"
+#include <SDL2/SDL_ttf.h>                   // SDL font library
 
 Game::Game()
 :window(nullptr)
@@ -6,6 +7,9 @@ Game::Game()
 ,ticksCount(0)
 ,isRunning(true)
 ,isPaused(true)
+,controller(keyboard)
+,font_image_left_score(NULL)
+,font_image_right_score(NULL)
 {
 	
 }
@@ -27,14 +31,14 @@ bool Game::Initialize(int argc, char *argv[])
 		return false;
 	}
 	
-    // Don't show cursor.
+    // Don't show cursor
     SDL_ShowCursor(0);
 	
 	// Create an SDL Window
 	window = SDL_CreateWindow(
-		"SPong", // Window title
-        SDL_WINDOWPOS_UNDEFINED,  // Centered window.
-        SDL_WINDOWPOS_UNDEFINED,  // Centered window.
+		"spong", // Window title
+        SDL_WINDOWPOS_UNDEFINED,  // Centered window
+        SDL_WINDOWPOS_UNDEFINED,  // Centered window
 		WIND_WIDTH,				 // Width of window
 		WIND_HEIGHT,			// Height of window
 	    SDL_WINDOW_SHOWN
@@ -46,8 +50,10 @@ bool Game::Initialize(int argc, char *argv[])
 		return false;
 	}
 	
+	TTF_Init();  // Initialize font.
+	
 	//Sounds
-	// Initialize SDL_mixer.
+	// Initialize SDL_mixer
     Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 1024);
     
     ball.paddle_sound = Mix_LoadWAV("resources/sounds/ball_paddle_hit.wav");
@@ -55,10 +61,10 @@ bool Game::Initialize(int argc, char *argv[])
     // Load score sound
     score_sound = Mix_LoadWAV("resources/sounds/score.wav");
 	
-	//// Create SDL renderer
+	// Create SDL renderer
 	renderer = SDL_CreateRenderer(
 		window, // Window to create renderer for
-		-1,		 // Usually -1
+		-1,		// Usually -1
 		SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
 	);
 
@@ -68,32 +74,33 @@ bool Game::Initialize(int argc, char *argv[])
 		return false;
 	}
 	
-	// Controllers.
+	// Controllers
     if (argc == 2) {
-        if (strcmp(argv[1], "keyboard") == 0 ) {
-            controller = keyboard;
-        } else if ( strcmp(argv[1], "joystick") == 0 ) {
-            controller = joystick;
-        } else {
+    
+        if (strcmp(argv[1], "mouse") == 0 ) {
             controller = mouse;
         }
-    } else {
-        controller = mouse;  // Default controller.
+        
+    	if (strcmp(argv[1], "keyboard") == 0 ) {
+            controller = keyboard;
+        }
     }
-
-	left_score = 0;
+    
+    // Scores
+    left_score = 0;
     right_score = 0;
+    
+    left_paddle.Message_rect(WIND_WIDTH * 4 / 10, WIND_HEIGHT / 12, 30, 30);
+    right_paddle.Message_rect(WIND_WIDTH * 6 / 10 - 12, WIND_HEIGHT/ 12, 30, 30); 
 
-	left_paddle.x = 0.0 + left_paddle.WIDTH;
-	left_paddle.y = float(WIND_HEIGHT)/2.0f;
+    // Indicates when rendering new score is necessary
+    left_score_changed = false;
+
+    // Indicates when rendering new score is necessary
+    right_score_changed = false;
 	
-	right_paddle.x = float(WIND_WIDTH) - 2 * left_paddle.WIDTH;
-	right_paddle.y = float(WIND_HEIGHT)/2.0f;
-	
-	ball.x = float(WIND_WIDTH)/2.0f;
-	ball.y = float(WIND_HEIGHT)/2.0f;
-	ball.vel_x = -415.0f;
-	ball.vel_y = 415.0f;
+	reset();
+
 	return true;
 }
 
@@ -116,6 +123,10 @@ void Game::ProcessInput()
 	
 	while (SDL_PollEvent(&event))
 	{
+		if (event.type == SDL_MOUSEMOTION) {
+	        SDL_GetMouseState(&mouse_x, &mouse_y);
+        }
+        
 		switch (event.type)
 		{
 			// If we get an SDL_QUIT event, end loop
@@ -137,7 +148,7 @@ void Game::ProcessInput()
 				}
 				break;
 				
-			 // Pressing F11 toggles fullscreen.
+			 // Pressing F11 toggles fullscreen
              case SDLK_F11:             
             	 int flags = SDL_GetWindowFlags(window);
             	 
@@ -159,7 +170,7 @@ void Game::ProcessInput()
 		isRunning = false;
 	}
 	
-	// Update paddle direction based on W/S keys
+	// Update paddle direction based on Up/Down arrow keys
 	left_paddle.direction = 0;
 	
 	if (state[SDL_SCANCODE_UP])
@@ -185,9 +196,7 @@ void Game::UpdateGame()
 	
 	// Clamp maximum delta time value
 	if (deltaTime > 0.05f)
-	{
 		deltaTime = 0.05f;
-	}
 
 	// Update tick counts (for next frame)
 	ticksCount = SDL_GetTicks();
@@ -211,17 +220,19 @@ void Game::UpdateGame()
 	
 	// Update ball position based on ball velocity
 	ball.x += ball.vel_x * deltaTime;
-	ball.y += ball.vel_y * deltaTime;	
+	ball.y += ball.vel_y * deltaTime;
 	
 	// Did the ball go off the screen? (if so, end game)
 	if (ball.x <= 0.0f) {
 		right_paddle.score++;
+		right_score_changed = true;
 		reset();		
 	}
 	
 	else if (ball.x >= float(WIND_WIDTH))
 	{
 		left_paddle.score++;
+        left_score_changed = true;
 		reset();
 	}
 	
@@ -262,7 +273,7 @@ void Game::UpdateGame()
 		/* AI move for CPU paddle */
   		if (ball.x > WIND_WIDTH * 3/5 && ball.vel_x > 0) {
 		  
-			if (ball.y > right_paddle.y + right_paddle.HEIGHT/2) {  // If the ball is below the center of the paddle
+			if (ball.y > right_paddle.y + right_paddle.HEIGHT/2) { 		// If the ball is below the center of the paddle
 		  		right_paddle.y = right_paddle.y + ball.vel_x/40;      // Move downwards
 		  	}
 				
@@ -270,7 +281,7 @@ void Game::UpdateGame()
 		  		right_paddle.y = right_paddle.y - ball.vel_x/40;     // Move upwards
 		  	}
   		}
-	}
+  	} /* End of else */
 }
 
 void Game::GenerateOutput()
@@ -328,24 +339,30 @@ void Game::GenerateOutput()
 	SDL_Rect spong_ball {static_cast<int>(ball.x), static_cast<int>(ball.y), ball.DIAMETER, ball.DIAMETER};
 	SDL_RenderFillRect(renderer, &spong_ball);
 	
+    // Render scores
+    if (left_score_changed) {
+    
+    	font_image_left_score = renderText (std::to_string(left_score));
+        left_score_changed = false;
+        
+    }
+    
+   	SDL_RenderCopy(renderer, font_image_left_score, NULL, left_paddle.Message_rect)
+
+    if (right_score_changed) {
+    
+        font_image_right_score = renderText (std::to_string(right_score));
+        right_score_changed = false;
+        
+    }
+	
+   	SDL_RenderCopy(renderer, font_image_right_score, NULL, right_paddle.Message_rect)
+	
 	// Swap front buffer and back buffer
 	SDL_RenderPresent(renderer);
 }
 
-void Game::Shutdown()
-{
-	SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
-	
-	// Quit SDL_mixer.
-    Mix_CloseAudio();
-    
-    Mix_FreeChunk(ball.paddle_sound);
-    Mix_FreeChunk(score_sound);
-	SDL_Quit();
-}
-
-// Reset ball to initial state.
+// Reset game to initial state
 void Game::reset() {
 
 	Mix_PlayChannel(-1, score_sound, 0);
@@ -355,10 +372,46 @@ void Game::reset() {
     ball.x = WIND_WIDTH/2 - ball.DIAMETER/2;
     ball.y = WIND_HEIGHT/2;
     
+    ball.vel_x = -415.0f;
+	ball.vel_y = 415.0f;
+    
 	left_paddle.x = 0.0 + left_paddle.WIDTH;
 	left_paddle.y = float(WIND_HEIGHT)/2.0f;
 	
 	right_paddle.x = float(WIND_WIDTH) - 2 * right_paddle.WIDTH;
 	right_paddle.y = float(WIND_HEIGHT)/2.0f;
 	
+}
+
+SDL_Texture* Game::renderText(const std::string& message) {
+
+	TTF_Font* Sans = TTF_OpenFont("resources/fonts/NES-Chimera.ttf", 24); //this opens a font style and sets a size
+
+	SDL_Color White = {255, 255, 255, 255};  // this is the color in rgb format
+
+	SDL_Surface* surfaceMessage = TTF_RenderText_Solid(Sans, message.c_str(), White); // as TTF_RenderText_Solid could only be used on SDL_Surface then you have to create the surface first
+
+	SDL_Texture* Message = SDL_CreateTextureFromSurface(Game::renderer, surfaceMessage); //now you can convert it into a texture
+
+	//Don't forget to free your surface
+	SDL_FreeSurface(surfaceMessage);
+	
+	return Message;
+}
+
+void Game::Shutdown()
+{     
+	SDL_DestroyRenderer(renderer);
+	SDL_DestroyWindow(window);
+	
+	// Destroy textures
+    SDL_DestroyTexture(font_image_left_score);
+    SDL_DestroyTexture(font_image_right_score);
+	
+	// Quit SDL_mixer
+    Mix_CloseAudio();
+    
+    Mix_FreeChunk(ball.paddle_sound);
+    Mix_FreeChunk(score_sound);
+	SDL_Quit();
 }

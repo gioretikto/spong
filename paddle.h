@@ -13,4 +13,6 @@ class Paddle {
 	// Paddle dimensions
     static constexpr float HEIGHT = 95.0f;
     static constexpr float WIDTH = 8.0f;
+    
+    SDL_Rect Message_rect;  //a rect to hold scores	
 };

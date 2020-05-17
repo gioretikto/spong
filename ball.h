@@ -1,5 +1,5 @@
 #pragma once
-#include <SDL2/SDL_mixer.h>                 // SDL sound library.
+#include <SDL2/SDL_mixer.h>                 // SDL sound library
 #include "paddle.h"
 
 class Ball {
@@ -10,8 +10,7 @@ public:
  	float vel_x;
  	float vel_y;
  	
-    int hits;  		// Counts the number of hits of the ball with
-    float angle;  	// Angle after collision with paddle
+    float speed;    
     
  	// Ball dimensions
     static constexpr int DIAMETER = 10;
