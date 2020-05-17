@@ -213,7 +213,7 @@ void Game::UpdateGame()
 	if (ball.x <= 0.0f) {
 		right_paddle.score++;
 		right_score_changed = true;
-		std::cout<<right_score_changed<<std::endl;
+		std::cout<<right_paddle.score<<std::endl;
 		reset();		
 	}
 	
