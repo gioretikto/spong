@@ -10,8 +10,6 @@ Game::Game()
 ,controller(keyboard)
 ,left_score_changed(false)
 ,right_score_changed(false)
-,left_score(0)
-,right_score(0)
 ,font_image_left_score(NULL)
 ,font_image_right_score(NULL)
 {
@@ -47,8 +45,6 @@ bool Game::Initialize(int argc, char *argv[])
 		return false;
 	}
 	
-	TTF_Init();  // Initialize font.
-	
 	// Sounds
 	// Initialize SDL_mixer
     Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 1024);
@@ -71,6 +67,13 @@ bool Game::Initialize(int argc, char *argv[])
 		return false;
 	}
 	
+	TTF_Init();  // Initialize font
+	font_image_left_score = renderText (std::to_string(left_paddle.score));
+    SDL_RenderCopy(renderer, font_image_left_score, NULL, &left_paddle.Message_rect);
+    
+    font_image_right_score = renderText (std::to_string(right_paddle.score));
+    SDL_RenderCopy(renderer, font_image_left_score, NULL, &right_paddle.Message_rect);
+	
 	// Controllers
     if (argc == 2) {
     
@@ -83,12 +86,6 @@ bool Game::Initialize(int argc, char *argv[])
         }
     }
     
-    font_image_left_score = renderText (std::to_string(left_score));
-    SDL_RenderCopy(renderer, font_image_left_score, NULL, &left_paddle.Message_rect);
-    
-    font_image_right_score = renderText (std::to_string(right_score));
-    SDL_RenderCopy(renderer, font_image_left_score, NULL, &right_paddle.Message_rect);
-	
 	reset();
 
 	return true;
@@ -216,6 +213,7 @@ void Game::UpdateGame()
 	if (ball.x <= 0.0f) {
 		right_paddle.score++;
 		right_score_changed = true;
+		std::cout<<right_score_changed<<std::endl;
 		reset();		
 	}
 	
@@ -263,8 +261,8 @@ void Game::UpdateGame()
 		/* AI move for CPU paddle */
   		if (ball.x > WIND_WIDTH * 3/5 && ball.vel_x > 0) {
 		  
-			if (ball.y > right_paddle.y + right_paddle.HEIGHT/2) { 		// If the ball is below the center of the paddle
-		  		right_paddle.y = right_paddle.y + ball.vel_x/40;      // Move downwards
+			if (ball.y > right_paddle.y + right_paddle.HEIGHT/2) {	// If the ball is below the center of the paddle
+		  		right_paddle.y = right_paddle.y + ball.vel_x/40;    // Move downwards
 		  	}
 				
 		  	else {  						// If the ball is above the center of the paddle
@@ -332,7 +330,7 @@ void Game::GenerateOutput()
     // Render scores
     if (left_score_changed) {
     
-    	font_image_left_score = renderText (std::to_string(left_score));
+    	font_image_left_score = renderText (std::to_string(left_paddle.score));
         left_score_changed = false;
         
     }
@@ -341,7 +339,7 @@ void Game::GenerateOutput()
 
     if (right_score_changed) {
     
-        font_image_right_score = renderText (std::to_string(right_score));
+        font_image_right_score = renderText (std::to_string(right_paddle.score));
         right_score_changed = false;
         
     }

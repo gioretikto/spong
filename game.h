@@ -65,10 +65,6 @@ private:
     // Indicates when rendering new score is necessary
     bool right_score_changed;
     
-    // Scores
-    int left_score;
-    int right_score;
-    
     // Holds text indicating player score (left)
     SDL_Texture* font_image_left_score;
 
