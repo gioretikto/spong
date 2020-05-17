@@ -10,8 +10,8 @@ Game::Game()
 ,controller(keyboard)
 ,left_score_changed(false)
 ,right_score_changed(false)
-,font_image_left_score(NULL)
-,font_image_right_score(NULL)
+,font_image_left_score(nullptr)
+,font_image_right_score(nullptr)
 {
 	
 }
@@ -68,11 +68,12 @@ bool Game::Initialize(int argc, char *argv[])
 	}
 	
 	TTF_Init();  // Initialize font
+	
 	font_image_left_score = renderText (std::to_string(left_paddle.score));
     SDL_RenderCopy(renderer, font_image_left_score, NULL, &left_paddle.Message_rect);
     
     font_image_right_score = renderText (std::to_string(right_paddle.score));
-    SDL_RenderCopy(renderer, font_image_left_score, NULL, &right_paddle.Message_rect);
+    SDL_RenderCopy(renderer, font_image_right_score, NULL, &right_paddle.Message_rect);
 	
 	// Controllers
     if (argc == 2) {
@@ -344,7 +345,7 @@ void Game::GenerateOutput()
         
     }
 	
-   	SDL_RenderCopy(renderer, font_image_right_score, NULL, &right_paddle.Message_rect);
+	SDL_RenderCopy(renderer, font_image_right_score, NULL, &right_paddle.Message_rect);
 	
 	// Swap front buffer and back buffer
 	SDL_RenderPresent(renderer);
