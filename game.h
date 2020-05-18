@@ -21,8 +21,8 @@ public:
 	void Shutdown();
 	
 	static constexpr int wallThickness = 15;
-	static const int WIND_WIDTH = 1024;
-	static const int WIND_HEIGHT = 720;
+	static const int WIND_WIDTH = 640;
+	static const int WIND_HEIGHT = 480;
 private:
 	// Helper functions for the game loop
 	void ProcessInput();

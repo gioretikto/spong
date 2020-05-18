@@ -130,7 +130,7 @@ void Game::ProcessInput()
 				if (event.key.keysym.sym == SDLK_RETURN)
 				{
 					// If return is pressed, pause the game
-					if(isPaused == false)
+					if (isPaused == false)
 					{
 						isPaused = true;
 					}
@@ -221,7 +221,7 @@ void Game::UpdateGame()
 	if (ball.x <= 0.0f) {
 		right_paddle.score++;
 		right_score_changed = true;
-		std::cout <<r ight_paddle.score<<std::endl;
+		std::cout << right_paddle.score << std::endl;
 		reset();		
 	}
 	
