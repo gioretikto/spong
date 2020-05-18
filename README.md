@@ -19,6 +19,14 @@ You will need:
 
 sudo apt-get install libsdl2-dev libsdl2-mixer-dev libsdl2-ttf-dev
 
+## Get Source and Build
+
+```
+git clone https://github.com/gioretikto/spong.git
+cd pong
+make
+```
+
 ## Run the game
 
 To run the game:
