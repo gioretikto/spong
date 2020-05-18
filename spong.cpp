@@ -146,9 +146,11 @@ void Game::ProcessInput()
             	 int flags = SDL_GetWindowFlags(window);
             	 
                  if (flags & SDL_WINDOW_FULLSCREEN) {
-            	     SDL_SetWindowFullscreen(window, 0);
+            	     if (SDL_SetWindowFullscreen(window, 0) != 0)
+            	     	  std::cout << "Unable to switch window to fullscreen mode :" << SDL_GetError() <<std::endl;
                  } else {
-            	       SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+            	       if (SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN) != 0)
+            	       	std::cout << "Unable to switch window to fullscreen mode :" << SDL_GetError() <<std::endl;
             	   }
                  break;
 		}
@@ -219,7 +221,7 @@ void Game::UpdateGame()
 	if (ball.x <= 0.0f) {
 		right_paddle.score++;
 		right_score_changed = true;
-		std::cout<<right_paddle.score<<std::endl;
+		std::cout <<r ight_paddle.score<<std::endl;
 		reset();		
 	}
 	
