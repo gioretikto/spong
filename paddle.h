@@ -1,6 +1,8 @@
+#include <SDL2/SDL.h>
+
 class Paddle {
  public:
-    const SDL_Rect Message_rect;  //a rect to hold scores	
+    const SDL_Rect Message_rect;  //a rect to hold font scores	
     
 	// Direction of paddle
 	int direction = 0;

@@ -19,12 +19,10 @@ Game::Game()
 bool Game::Initialize(int argc, char *argv[])
 {
 	// Initialize SDL
-	int sdlResult = SDL_Init(SDL_INIT_VIDEO);
-	if (sdlResult != 0)
-	{
-		SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
+	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) != 0) {
+		SDL_Log("Unable to initialize SDL :%s", SDL_GetError());
 		return false;
-	}
+	}	
 	
     // Don't show cursor
     SDL_ShowCursor(0);
@@ -47,7 +45,10 @@ bool Game::Initialize(int argc, char *argv[])
 	
 	// Sounds
 	// Initialize SDL_mixer
-    Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 1024);
+    if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 1024)) {    
+	    std::cout << "SDL_mixer: Msx_OpenAudio " << Mix_GetError() << std::endl;
+        return false;
+    }
     
     ball.paddle_sound = Mix_LoadWAV("resources/sounds/ball_paddle_hit.wav");
     
@@ -67,7 +68,10 @@ bool Game::Initialize(int argc, char *argv[])
 		return false;
 	}
 	
-	TTF_Init();  // Initialize font
+	if (TTF_Init() == -1) {  // Initialize font
+	    std::cout << "TTF_Init: " << TTF_GetError();
+		return false;
+	}
 	
 	font_image_left_score = renderText (std::to_string(left_paddle.score));
     SDL_RenderCopy(renderer, font_image_left_score, NULL, &left_paddle.Message_rect);
@@ -137,7 +141,8 @@ void Game::ProcessInput()
 				break;
 				
 			 // Pressing F11 toggles fullscreen
-             case SDLK_F11:             
+             case SDLK_F11:
+             
             	 int flags = SDL_GetWindowFlags(window);
             	 
                  if (flags & SDL_WINDOW_FULLSCREEN) {
@@ -374,13 +379,34 @@ void Game::reset() {
 
 SDL_Texture* Game::renderText(const std::string& message) {
 
-	TTF_Font* Chimera = TTF_OpenFont("resources/fonts/NES-Chimera.ttf", 24); //this opens a font style and sets a size
-
+	static TTF_Font* font = nullptr;
+	
+	if (!font) {
+		
+		font = TTF_OpenFont("resources/fonts/NES-Chimera.ttf", 24); //this opens a font style and sets a size
+	
+	}
+	
+	if (font == nullptr ) {
+		std::cout << " Failed to load font : " << SDL_GetError() << std::endl;
+		return nullptr;
+	}
+	
 	SDL_Color White = {255, 255, 255, 255};  // this is the color in rgb format
 
-	SDL_Surface* surfaceMessage = TTF_RenderText_Solid(Chimera, message.c_str(), White); // as TTF_RenderText_Solid could only be used on SDL_Surface then you have to create the surface first
+	SDL_Surface* surfaceMessage = TTF_RenderText_Solid(font, message.c_str(), White); // as TTF_RenderText_Solid could only be used on SDL_Surface then you have to create the surface first
+
+	if (!surfaceMessage) {
+		SDL_Log("Failed to create surfaceMessage: %s", SDL_GetError());
+		return nullptr;
+	}
 
 	SDL_Texture* Message = SDL_CreateTextureFromSurface(Game::renderer, surfaceMessage); //now you can convert it into a texture
+	
+	if (Message == nullptr) {
+		SDL_Log("Failed to create Texture Message: %s", SDL_GetError());
+		return nullptr;
+	}		
 
 	//Don't forget to free your surface
 	SDL_FreeSurface(surfaceMessage);
