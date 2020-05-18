@@ -8,6 +8,7 @@ Game::Game()
 ,isRunning(true)
 ,isPaused(true)
 ,controller(keyboard)
+,score_sound(nullptr)
 ,left_score_changed(false)
 ,right_score_changed(false)
 ,font_image_left_score(nullptr)
@@ -22,7 +23,7 @@ bool Game::Initialize(int argc, char *argv[])
 	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) != 0) {
 		SDL_Log("Unable to initialize SDL :%s", SDL_GetError());
 		return false;
-	}	
+	}
 	
     // Don't show cursor
     SDL_ShowCursor(0);
@@ -56,11 +57,8 @@ bool Game::Initialize(int argc, char *argv[])
     score_sound = Mix_LoadWAV("resources/sounds/score.wav");
 	
 	// Create SDL renderer
-	renderer = SDL_CreateRenderer(
-		window, // Window to create renderer for
-		-1,		// Usually -1
-		SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
-	);
+	renderer = SDL_CreateRenderer(window,-1,// Usually -1
+		SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
 	if (!renderer)
 	{
@@ -102,8 +100,10 @@ void Game::RunLoop()
 	{
 		ProcessInput();
 		
-		if (isPaused != true)
-			UpdateGame();
+		if (isPaused != true) {
+			SDL_Delay(16); 	// Wait until 16ms has elapsed since last frame
+			UpdateGame();			
+		}
 			
 		GenerateOutput();
 	}
@@ -119,41 +119,40 @@ void Game::ProcessInput()
 	        SDL_GetMouseState(&mouse_x, &mouse_y);
         }
         
-		switch (event.type)
-		{
-			// If we get an SDL_QUIT event, end loop
-			case SDL_QUIT:
-				isRunning = false;
-				break;
-				
-			case SDL_KEYUP:
-				if (event.key.keysym.sym == SDLK_RETURN)
-				{
-					// If return is pressed, pause the game
+		if (event.type == SDL_QUIT) {        // If we get an SDL_QUIT event, end loop
+			isRunning = false;
+		}			
+        
+        if (event.type == SDL_KEYDOWN) {
+			switch (event.key.keysym.sym)
+			{					
+				case SDLK_RETURN:
+				// If return is pressed, pause the game
 					if (isPaused == false)
-					{
-						isPaused = true;
-					}
-				
-					else
-						isPaused = false;
-				}
-				break;
-				
-			 // Pressing F11 toggles fullscreen
-             case SDLK_F11:
-             
-            	 int flags = SDL_GetWindowFlags(window);
-            	 
-                 if (flags & SDL_WINDOW_FULLSCREEN) {
-            	     if (SDL_SetWindowFullscreen(window, 0) != 0)
-            	     	  std::cout << "Unable to switch window to fullscreen mode :" << SDL_GetError() <<std::endl;
-                 } else {
-            	       if (SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN) != 0)
-            	       	std::cout << "Unable to switch window to fullscreen mode :" << SDL_GetError() <<std::endl;
-            	   }
-                 break;
-		}
+						{
+							isPaused = true;
+						}
+					
+						else
+							isPaused = false;
+					
+					break;
+					
+				 // Pressing F11 toggles fullscreen
+		         case SDLK_F11:
+		         
+		        	 int flags = SDL_GetWindowFlags(window);
+		        	 
+		             if (flags & SDL_WINDOW_FULLSCREEN) {
+		        	     if (SDL_SetWindowFullscreen(window, 0) != 0)
+		        	     	  std::cout << "Unable to switch window to fullscreen mode :" << SDL_GetError() <<std::endl;
+		             } else {
+		        	       if (SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN) != 0)
+		        	       	std::cout << "Unable to switch window to fullscreen mode :" << SDL_GetError() <<std::endl;
+		        	   }
+		             break;
+			}
+		} /* end of if (event.type == SDL_KEYDOWN) */
 	}
 	
 	// Get state of keyboard
@@ -181,10 +180,6 @@ void Game::ProcessInput()
 
 void Game::UpdateGame()
 {
-	// Wait until 16ms has elapsed since last frame
-	while (!SDL_TICKS_PASSED(SDL_GetTicks(), ticksCount + 16))
-		;
-
 	// Delta time is the difference in ticks from last frame
 	// (converted to seconds)
 	float deltaTime = (SDL_GetTicks() - ticksCount) / 1000.0f;
@@ -416,7 +411,7 @@ SDL_Texture* Game::renderText(const std::string& message) {
 	return Message;
 }
 
-void Game::Shutdown()
+Game::~Game()
 {     
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);

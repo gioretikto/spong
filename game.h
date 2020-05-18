@@ -13,21 +13,20 @@ class Game
 {
 public:
 	Game();
+	~Game();
 	// Initialize the game
 	bool Initialize(int argc, char *argv[]);
 	// Runs the game loop until the game is over
 	void RunLoop();
-	// Shutdown the game
-	void Shutdown();
 	
 	static constexpr int wallThickness = 15;
-	static const int WIND_WIDTH = 640;
-	static const int WIND_HEIGHT = 480;
+	static const int WIND_WIDTH = 1024;
+	static const int WIND_HEIGHT = 768;
 private:
-	// Helper functions for the game loop
 	void ProcessInput();
 	void UpdateGame();
 	void GenerateOutput();
+
 	SDL_Texture* renderText(const std::string& message);
  	void reset();
 

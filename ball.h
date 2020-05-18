@@ -15,8 +15,8 @@ public:
  	// Ball dimensions
     static constexpr int DIAMETER = 10;
     
-    // Holds sound produced after ball collides with paddle.
-    Mix_Chunk* paddle_sound;
+    // Holds sound produced after ball collides with paddle
+    Mix_Chunk* paddle_sound = nullptr;
     
  	bool collides_with(const Paddle& paddle);
 };
