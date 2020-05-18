@@ -6,6 +6,12 @@ A pong clone
 
 You will need:
 
+You will need:
+
++ [SDL 2.0](https://www.libsdl.org/)
++ [SDL Mixer 2.0](http://www.libsdl.org/projects/SDL_mixer/)
++ [SDL TTF 2.0](https://www.libsdl.org/projects/SDL_ttf/)
+
   -  SDL 2.0
   -  SDL Mixer 2.0
   -  SDL TTF 2.0

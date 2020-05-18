@@ -51,10 +51,10 @@ bool Game::Initialize(int argc, char *argv[])
         return false;
     }
     
-    ball.paddle_sound = Mix_LoadWAV("resources/sounds/ball_paddle_hit.wav");
+    ball.paddle_sound = Mix_LoadWAV("resources/audio/ball_paddle_hit.ogg");
     
     // Load score sound
-    score_sound = Mix_LoadWAV("resources/sounds/score.wav");
+    score_sound = Mix_LoadWAV("resources/audio/score.ogg");
 	
 	// Create SDL renderer
 	renderer = SDL_CreateRenderer(window,-1,// Usually -1
