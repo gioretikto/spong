@@ -1,8 +1,8 @@
 # spong
-pong clone
-work in progress
 
-Dependencies
+A pong clone
+
+## Dependencies
 
 You will need:
 
@@ -12,3 +12,17 @@ You will need:
 
 
 sudo apt-get install libsdl2-dev libsdl2-mixer-dev libsdl2-ttf-dev
+
+## Run the game
+
+To run the game:
+
+`./spong`
+
+## Usage
+
+- Return to start/pause the game
+
+- F11 to toggle full screen mode
+
+- Esc to exit
