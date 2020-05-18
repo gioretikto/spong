@@ -40,3 +40,9 @@ To run the game:
 - F11 to toggle full screen mode
 
 - Esc to exit
+
+
+Have Fun,
+Giovanni Resta <giovannirestadev@gmail.com>
+
+![Screenshot](https://github.com/gioretikto/spong/blob/master/spong.png)
