@@ -1,4 +1,3 @@
-#pragma once
 #include <string>
 #include <iostream>
 #include "ball.h"
@@ -32,10 +31,11 @@ private:
 
 	// Window created by SDL
 	SDL_Window* window;
+	
 	// Renderer for 2D drawing
 	SDL_Renderer* renderer;
-	// Number of ticks since start of game
 	
+	// Number of ticks since start of game	
 	Uint32 ticksCount;
 	// Game should continue to run
 	bool isRunning;
@@ -58,14 +58,14 @@ private:
     Mix_Chunk* score_sound;
     
     // Indicates when rendering new score is necessary
-    bool left_score_changed;
+    bool left_score_update;
 
     // Indicates when rendering new score is necessary
-    bool right_score_changed;
+    bool right_score_update;
     
     // Holds text indicating player score (left)
-    SDL_Texture* font_image_left_score;
+    SDL_Texture* text_left_score;
 
     // Holds text indicating CPU score (right)
-    SDL_Texture* font_image_right_score;
+    SDL_Texture* text_right_score;
 };

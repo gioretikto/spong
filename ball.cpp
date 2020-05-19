@@ -26,3 +26,8 @@ bool Ball::collides_with(const Paddle& paddle) {
 	else
 		return false;
 }
+
+Ball::~Ball()
+{
+    Mix_FreeChunk(paddle_sound);
+}

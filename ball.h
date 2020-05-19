@@ -19,4 +19,5 @@ public:
     Mix_Chunk* paddle_sound = nullptr;
     
  	bool collides_with(const Paddle& paddle);
+ 	~Ball();
 };

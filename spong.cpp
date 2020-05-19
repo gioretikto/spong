@@ -9,10 +9,10 @@ Game::Game()
 ,isPaused(true)
 ,controller(keyboard)
 ,score_sound(nullptr)
-,left_score_changed(false)
-,right_score_changed(false)
-,font_image_left_score(nullptr)
-,font_image_right_score(nullptr)
+,left_score_update(false)
+,right_score_update(false)
+,text_left_score(nullptr)
+,text_right_score(nullptr)
 {
 	
 }
@@ -71,11 +71,11 @@ bool Game::Initialize(int argc, char *argv[])
 		return false;
 	}
 	
-	font_image_left_score = renderText (std::to_string(left_paddle.score));
-    SDL_RenderCopy(renderer, font_image_left_score, NULL, &left_paddle.Message_rect);
+	text_left_score = renderText (std::to_string(left_paddle.score));
+    SDL_RenderCopy(renderer, text_left_score, NULL, &left_paddle.Message_rect);
     
-    font_image_right_score = renderText (std::to_string(right_paddle.score));
-    SDL_RenderCopy(renderer, font_image_right_score, NULL, &right_paddle.Message_rect);
+    text_right_score = renderText (std::to_string(right_paddle.score));
+    SDL_RenderCopy(renderer, text_right_score, NULL, &right_paddle.Message_rect);
 	
 	// Controllers
     if (argc == 2) {
@@ -215,7 +215,7 @@ void Game::UpdateGame()
 	// Did the ball go off the screen? (if so, end game)
 	if (ball.x <= 0.0f) {
 		right_paddle.score++;
-		right_score_changed = true;
+		right_score_update = true;
 		std::cout << right_paddle.score << std::endl;
 		reset();		
 	}
@@ -223,7 +223,7 @@ void Game::UpdateGame()
 	else if (ball.x >= float(WIND_WIDTH))
 	{
 		left_paddle.score++;
-        left_score_changed = true;
+        left_score_update = true;
 		reset();
 	}
 	
@@ -331,23 +331,23 @@ void Game::GenerateOutput()
 	SDL_RenderFillRect(renderer, &spong_ball);
 	
     // Render scores
-    if (left_score_changed) {
+    if (left_score_update) {
     
-    	font_image_left_score = renderText (std::to_string(left_paddle.score));
-        left_score_changed = false;
+    	text_left_score = renderText (std::to_string(left_paddle.score));
+        left_score_update = false;
         
     }
     
-   	SDL_RenderCopy(renderer, font_image_left_score, NULL, &left_paddle.Message_rect);
+   	SDL_RenderCopy(renderer, text_left_score, NULL, &left_paddle.Message_rect);
 
-    if (right_score_changed) {
+    if (right_score_update) {
     
-        font_image_right_score = renderText (std::to_string(right_paddle.score));
-        right_score_changed = false;
+        text_right_score = renderText (std::to_string(right_paddle.score));
+        right_score_update = false;
         
     }
 	
-	SDL_RenderCopy(renderer, font_image_right_score, NULL, &right_paddle.Message_rect);
+	SDL_RenderCopy(renderer, text_right_score, NULL, &right_paddle.Message_rect);
 	
 	// Swap front buffer and back buffer
 	SDL_RenderPresent(renderer);
@@ -363,8 +363,8 @@ void Game::reset() {
     ball.x = WIND_WIDTH/2 - ball.DIAMETER/2;
     ball.y = WIND_HEIGHT/2;
     
-    ball.vel_x = -415.0f;
-	ball.vel_y = 415.0f;
+    ball.vel_x = -416.0f;
+	ball.vel_y = 416.0f;
     
 	left_paddle.x = 0.0 + left_paddle.WIDTH;
 	left_paddle.y = float(WIND_HEIGHT)/2.0f;
@@ -417,13 +417,12 @@ Game::~Game()
 	SDL_DestroyWindow(window);
 	
 	// Destroy textures
-    SDL_DestroyTexture(font_image_left_score);
-    SDL_DestroyTexture(font_image_right_score);
+    SDL_DestroyTexture(text_left_score);
+    SDL_DestroyTexture(text_right_score);
 	
 	// Quit SDL_mixer
     Mix_CloseAudio();
-    
-    Mix_FreeChunk(ball.paddle_sound);
+
     Mix_FreeChunk(score_sound);
 	SDL_Quit();
 }
