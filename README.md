@@ -29,6 +29,8 @@ To run the game:
 
 `./spong`
 
+`./spong mouse` to activate mouse support
+
 ## Usage
 
 - Return to start/pause the game
@@ -36,7 +38,6 @@ To run the game:
 - F11 to toggle full screen mode
 
 - Esc to exit
-
 
 Have Fun,
 Giovanni Resta <giovannirestadev@gmail.com>

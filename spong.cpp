@@ -1,4 +1,4 @@
-#include "game.h"
+#include "spong.h"
 #include <SDL2/SDL_ttf.h>                   // SDL font library
 
 Game::Game()
@@ -71,10 +71,10 @@ bool Game::Initialize(int argc, char *argv[])
 		return false;
 	}
 	
-	text_left_score = renderText (std::to_string(left_paddle.score));
+	text_left_score = textRender (std::to_string(left_paddle.score));
     SDL_RenderCopy(renderer, text_left_score, NULL, &left_paddle.Message_rect);
     
-    text_right_score = renderText (std::to_string(right_paddle.score));
+    text_right_score = textRender (std::to_string(right_paddle.score));
     SDL_RenderCopy(renderer, text_right_score, NULL, &right_paddle.Message_rect);
 	
 	// Controllers
@@ -180,6 +180,10 @@ void Game::ProcessInput()
 
 void Game::UpdateGame()
 {
+	if (controller == mouse) {
+        left_paddle.y = mouse_y;
+    }
+    
 	// Delta time is the difference in ticks from last frame
 	// (converted to seconds)
 	float deltaTime = (SDL_GetTicks() - ticksCount) / 1000.0f;
@@ -333,7 +337,7 @@ void Game::GenerateOutput()
     // Render scores
     if (left_score_update) {
     
-    	text_left_score = renderText (std::to_string(left_paddle.score));
+    	text_left_score = textRender (std::to_string(left_paddle.score));
         left_score_update = false;
         
     }
@@ -342,7 +346,7 @@ void Game::GenerateOutput()
 
     if (right_score_update) {
     
-        text_right_score = renderText (std::to_string(right_paddle.score));
+        text_right_score = textRender (std::to_string(right_paddle.score));
         right_score_update = false;
         
     }
@@ -374,7 +378,7 @@ void Game::reset() {
 	
 }
 
-SDL_Texture* Game::renderText(const std::string& message) {
+SDL_Texture* Game::textRender(const std::string& message) {
 
 	static TTF_Font* font = nullptr;
 	
