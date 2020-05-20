@@ -12,8 +12,9 @@ int main(int argc, char* argv[])
         }        
     }
     
-    else
-        	game.controller = keyboard;
+    else {
+       	game.controller = keyboard;
+	}
 	
 	if (game.Initialize())
 	{
