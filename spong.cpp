@@ -69,7 +69,7 @@ bool Game::Initialize()
 	}
 	
 	else {
-		font = TTF_OpenFont("resources/fonts/NES-Chimera.ttf", 24); //this opens a font style and sets a size
+		font = TTF_OpenFont("resources/fonts/unifont.ttf", 24); //this opens a font style and sets a size
 		font_color = {255, 255, 255, 255};  // this is the white color in rgb format
 	}
 	
