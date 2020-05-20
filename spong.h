@@ -1,5 +1,6 @@
 #include <string>
 #include <iostream>
+#include <SDL2/SDL_ttf.h>                   // SDL font library
 #include "ball.h"
 
 class Paddle;
@@ -23,7 +24,7 @@ private:
 	void ProcessInput();
 	void UpdateGame();
 	void GenerateOutput();
-	SDL_Texture* textRender(const std::string& message);
+	void textRender(Paddle& paddle);
  	void reset();
 
 	// Window created by SDL
@@ -60,9 +61,6 @@ private:
     // Indicates when rendering new score is necessary
     bool right_score_update;
     
-    // Holds text indicating player score (left)
-    SDL_Texture* text_left_score;
-
-    // Holds text indicating CPU score (right)
-    SDL_Texture* text_right_score;
+    TTF_Font* font;
+    SDL_Color font_color;
 };

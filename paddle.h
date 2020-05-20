@@ -2,6 +2,8 @@
 
 class Paddle {
  public:
+	 ~Paddle();
+	 
     const SDL_Rect Message_rect;  //a rect to hold font scores	
     
 	// Direction of paddle
@@ -16,4 +18,6 @@ class Paddle {
 	// Paddle dimensions
     static constexpr float HEIGHT = 95.0f;
     static constexpr float WIDTH = 8.0f;
+    
+    SDL_Texture* Message = nullptr;   /* To hold Player's score */
 };

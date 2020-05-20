@@ -1,5 +1,4 @@
 #include "spong.h"
-#include <SDL2/SDL_ttf.h>                   // SDL font library
 
 Game::Game()
 :window(nullptr)
@@ -11,8 +10,7 @@ Game::Game()
 ,score_sound(nullptr)
 ,left_score_update(false)
 ,right_score_update(false)
-,text_left_score(nullptr)
-,text_right_score(nullptr)
+,font(nullptr)
 {
 	
 }
@@ -57,7 +55,7 @@ bool Game::Initialize(int argc, char *argv[])
     score_sound = Mix_LoadWAV("resources/audio/score.ogg");
 	
 	// Create SDL renderer
-	renderer = SDL_CreateRenderer(window,-1,// Usually -1
+	renderer = SDL_CreateRenderer(window,-1, // Usually -1
 		SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
 	if (!renderer)
@@ -71,21 +69,22 @@ bool Game::Initialize(int argc, char *argv[])
 		return false;
 	}
 	
-	text_left_score = textRender (std::to_string(left_paddle.score));
-    SDL_RenderCopy(renderer, text_left_score, NULL, &left_paddle.Message_rect);
-    
-    text_right_score = textRender (std::to_string(right_paddle.score));
-    SDL_RenderCopy(renderer, text_right_score, NULL, &right_paddle.Message_rect);
+	else {
+		font = TTF_OpenFont("resources/fonts/NES-Chimera.ttf", 24); //this opens a font style and sets a size
+		font_color = {255, 255, 255, 255};  // this is the white color in rgb format
+	}
+	
+	/* Initialize scores messages*/
+	
+	textRender (left_paddle);
+
+    textRender (right_paddle);
 	
 	// Controllers
     if (argc == 2) {
     
         if (strcmp(argv[1], "mouse") == 0 ) {
             controller = mouse;
-        }
-        
-    	if (strcmp(argv[1], "keyboard") == 0 ) {
-            controller = keyboard;
         }
     }
     
@@ -102,7 +101,7 @@ void Game::RunLoop()
 		
 		if (isPaused != true) {
 			SDL_Delay(16); 	// Wait until 16ms has elapsed since last frame
-			UpdateGame();			
+			UpdateGame();	
 		}
 			
 		GenerateOutput();
@@ -285,7 +284,7 @@ void Game::GenerateOutput()
 	SDL_SetRenderDrawColor(
 		renderer,
 		0,		// R
-		0,		// G 
+		0,		// G
 		0,		// B
 		0		// A
 	);
@@ -337,21 +336,21 @@ void Game::GenerateOutput()
     // Render scores
     if (left_score_update) {
     
-    	text_left_score = textRender (std::to_string(left_paddle.score));
+    	textRender (left_paddle);
         left_score_update = false;
         
     }
     
-   	SDL_RenderCopy(renderer, text_left_score, NULL, &left_paddle.Message_rect);
-
+   SDL_RenderCopy(renderer, left_paddle.Message, NULL, &left_paddle.Message_rect);
+    
     if (right_score_update) {
     
-        text_right_score = textRender (std::to_string(right_paddle.score));
+        textRender (right_paddle);   
         right_score_update = false;
         
     }
-	
-	SDL_RenderCopy(renderer, text_right_score, NULL, &right_paddle.Message_rect);
+    
+   SDL_RenderCopy(renderer, right_paddle.Message, NULL, &right_paddle.Message_rect);
 	
 	// Swap front buffer and back buffer
 	SDL_RenderPresent(renderer);
@@ -378,55 +377,48 @@ void Game::reset() {
 	
 }
 
-SDL_Texture* Game::textRender(const std::string& message) {
+void Game::textRender(Paddle& paddle) {
 
-	static TTF_Font* font = nullptr;
+	std::string message = std::to_string(paddle.score);
 	
-	if (!font) {
-		
-		font = TTF_OpenFont("resources/fonts/NES-Chimera.ttf", 24); //this opens a font style and sets a size
-	
-	}
-	
-	if (font == nullptr ) {
-		std::cout << " Failed to load font : " << SDL_GetError() << std::endl;
-		return nullptr;
-	}
-	
-	SDL_Color White = {255, 255, 255, 255};  // this is the color in rgb format
-
-	SDL_Surface* surfaceMessage = TTF_RenderText_Solid(font, message.c_str(), White); // as TTF_RenderText_Solid could only be used on SDL_Surface then you have to create the surface first
+	SDL_Surface* surfaceMessage = TTF_RenderText_Solid(font, message.c_str(), font_color); // as TTF_RenderText_Solid could only be used on SDL_Surface then you have to create the surface first
 
 	if (!surfaceMessage) {
 		SDL_Log("Failed to create surfaceMessage: %s", SDL_GetError());
-		return nullptr;
 	}
 
-	SDL_Texture* Message = SDL_CreateTextureFromSurface(Game::renderer, surfaceMessage); //now you can convert it into a texture
+	if (paddle.Message != nullptr) {
+		SDL_DestroyTexture(paddle.Message);
+		paddle.Message = nullptr;
+	}
+
+	paddle.Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage); //now you can convert it into a texture
 	
-	if (Message == nullptr) {
+	if (paddle.Message == nullptr) {
 		SDL_Log("Failed to create Texture Message: %s", SDL_GetError());
-		return nullptr;
 	}		
 
 	//Don't forget to free your surface
 	SDL_FreeSurface(surfaceMessage);
-	
-	return Message;
 }
 
 Game::~Game()
-{     
+{
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	
-	// Destroy textures
-    SDL_DestroyTexture(text_left_score);
-    SDL_DestroyTexture(text_right_score);
+    TTF_CloseFont(font);
+    TTF_Quit();
 	
 	// Quit SDL_mixer
     Mix_CloseAudio();
 
     Mix_FreeChunk(score_sound);
 	SDL_Quit();
+}
+
+Paddle::~Paddle()
+{
+	SDL_DestroyTexture(Message);
+
 }
