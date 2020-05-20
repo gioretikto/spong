@@ -4,9 +4,18 @@ int main(int argc, char* argv[])
 {
 	Game game;
 	
-	bool success = game.Initialize(argc,argv);
+	// Controllers
+    if (argc == 2) {
+    
+        if (strcmp(argv[1], "mouse") == 0 ) {
+            game.controller = mouse;
+        }        
+    }
+    
+    else
+        	game.controller = keyboard;
 	
-	if (success)
+	if (game.Initialize())
 	{
 		game.RunLoop();
 	}

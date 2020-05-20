@@ -3,9 +3,10 @@
 #include <SDL2/SDL_ttf.h>                   // SDL font library
 #include "ball.h"
 
+enum Controllers {mouse, keyboard};
+
 class Paddle;
 class Ball;
-
 // Game class
 class Game
 {
@@ -13,13 +14,16 @@ public:
 	Game();
 	~Game();
 	// Initialize the game
-	bool Initialize(int argc, char *argv[]);
+	bool Initialize();
 	// Runs the game loop until the game is over
 	void RunLoop();
 	
 	static constexpr int wallThickness = 15;
 	static const int WIND_WIDTH = 1024;
 	static const int WIND_HEIGHT = 768;
+	
+	// Controllers
+    Controllers controller;
 private:
 	void ProcessInput();
 	void UpdateGame();
@@ -45,10 +49,6 @@ private:
     
     Ball ball;
     
-    // Controllers
-    enum Controllers {mouse, keyboard};
-    Controllers controller;
-    
     int mouse_x, mouse_y;  // Mouse coordinates
     
     // Sounds
@@ -63,4 +63,5 @@ private:
     
     TTF_Font* font;
     SDL_Color font_color;
+    const Uint8* state;
 };

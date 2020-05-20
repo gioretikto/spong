@@ -6,7 +6,6 @@ Game::Game()
 ,ticksCount(0)
 ,isRunning(true)
 ,isPaused(true)
-,controller(keyboard)
 ,score_sound(nullptr)
 ,left_score_update(false)
 ,right_score_update(false)
@@ -15,7 +14,7 @@ Game::Game()
 	
 }
 
-bool Game::Initialize(int argc, char *argv[])
+bool Game::Initialize()
 {
 	// Initialize SDL
 	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) != 0) {
@@ -79,15 +78,10 @@ bool Game::Initialize(int argc, char *argv[])
 	textRender (left_paddle);
 
     textRender (right_paddle);
+        	
+	// Get state of keyboard
+	state = SDL_GetKeyboardState(NULL);
 	
-	// Controllers
-    if (argc == 2) {
-    
-        if (strcmp(argv[1], "mouse") == 0 ) {
-            controller = mouse;
-        }
-    }
-    
 	reset();
 
 	return true;
@@ -114,17 +108,22 @@ void Game::ProcessInput()
 	
 	while (SDL_PollEvent(&event))
 	{
+		// Track mouse movement
 		if (event.type == SDL_MOUSEMOTION) {
 	        SDL_GetMouseState(&mouse_x, &mouse_y);
         }
         
 		if (event.type == SDL_QUIT) {        // If we get an SDL_QUIT event, end loop
 			isRunning = false;
-		}			
+		}
         
         if (event.type == SDL_KEYDOWN) {
 			switch (event.key.keysym.sym)
-			{					
+			{
+				case SDLK_ESCAPE:
+                    isRunning = false;
+                    break;
+                    				
 				case SDLK_RETURN:
 				// If return is pressed, pause the game
 					if (isPaused == false)
@@ -153,16 +152,7 @@ void Game::ProcessInput()
 			}
 		} /* end of if (event.type == SDL_KEYDOWN) */
 	}
-	
-	// Get state of keyboard
-	const Uint8* state = SDL_GetKeyboardState(NULL);
 		
-	// If escape is pressed, also end loop
-	if (state[SDL_SCANCODE_ESCAPE])
-	{
-		isRunning = false;
-	}
-	
 	// Update paddle direction based on Up/Down arrow keys
 	left_paddle.direction = 0;
 	
@@ -280,7 +270,7 @@ void Game::UpdateGame()
 
 void Game::GenerateOutput()
 {
-	// Set draw color to blue
+	// Set draw color to white used for drawing operations (Rect, Line and Clear)
 	SDL_SetRenderDrawColor(
 		renderer,
 		0,		// R
@@ -420,5 +410,4 @@ Game::~Game()
 Paddle::~Paddle()
 {
 	SDL_DestroyTexture(Message);
-
 }
