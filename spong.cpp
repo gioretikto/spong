@@ -144,10 +144,14 @@ void Game::ProcessInput()
 		             if (flags & SDL_WINDOW_FULLSCREEN) {
 		        	     if (SDL_SetWindowFullscreen(window, 0) != 0)
 		        	     	  std::cout << "Unable to switch window to fullscreen mode :" << SDL_GetError() <<std::endl;
-		             } else {
-		        	       if (SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN) != 0)
-		        	       	std::cout << "Unable to switch window to fullscreen mode :" << SDL_GetError() <<std::endl;
-		        	   }
+		             }
+		             
+		             else
+		             {
+		        	 	if (SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN) != 0)
+		        	 	  	std::cout << "Unable to switch window to fullscreen mode :" << SDL_GetError() <<std::endl;
+		        	 }
+		        	 
 		             break;
 			}
 		} /* end of if (event.type == SDL_KEYDOWN) */
@@ -225,20 +229,16 @@ void Game::UpdateGame()
 		if (ball.vel_x < 0) {
 		
 			if (ball.collides_with(left_paddle)) {
-				;
+				number_collisions++;
+				right_paddle.move_status = true;
 			}
 		}
 		
 		else {
 			if (ball.collides_with(right_paddle)) {
-				;
+				number_collisions++;
+				right_paddle.move_status = false;
 			}
-		}
-		
-		// Did the ball collide with the right wall?
-		if (ball.x >= (float(WIND_WIDTH) - wallThickness) && ball.vel_x > 0.0f)
-		{
-			ball.vel_x *= -1.0f;
 		}
 		
 		// Did the ball collide with the top wall?
@@ -248,23 +248,22 @@ void Game::UpdateGame()
 		}
 		
 		// Did the ball collide with the bottom wall?
-		if (ball.y >= (float(WIND_HEIGHT) - wallThickness) &&
-			ball.vel_y > 0.0f)
+		if (ball.y >= (float(WIND_HEIGHT) - wallThickness) && ball.vel_y > 0.0f)
 		{
 			ball.vel_y *= -1;
 		}
-		
-		/* AI move for CPU paddle */
-  		if (ball.x > WIND_WIDTH * 3/5 && ball.vel_x > 0) {
-		  
-			if (ball.y > right_paddle.y + right_paddle.HEIGHT/2) {	// If the ball is below the center of the paddle
-		  		right_paddle.y = right_paddle.y + ball.vel_x/40;    // Move downwards
-		  	}
-				
-		  	else {  						// If the ball is above the center of the paddle
-		  		right_paddle.y = right_paddle.y - ball.vel_x/40;     // Move upwards
-		  	}
-  		}
+  		
+  		if (ball.x > float(WIND_WIDTH)*3/5 && right_paddle.move_status) {
+  		
+	  		if (ball.y > right_paddle.y + right_paddle.HEIGHT/2.0f) {  // If the ball is below the center of the paddle
+				right_paddle.y = right_paddle.y + ball.vel_x/(40-number_collisions/100);       // Move downwards
+	  		}
+	  		
+	  		else if (ball.y < right_paddle.y + right_paddle.HEIGHT/2.0f) {  				// If the ball is above the center of the paddle
+				right_paddle.y  = right_paddle.y - ball.vel_x/(40-number_collisions/100);   // Move upwards
+			}	
+		}
+ 		
   	} /* End of else */
 }
 
@@ -324,11 +323,10 @@ void Game::GenerateOutput()
 	SDL_RenderFillRect(renderer, &spong_ball);
 	
     // Render scores
-    if (left_score_update) {
-    
-    	textRender (left_paddle);
+    if (left_score_update)
+    {
+       	textRender (left_paddle);
         left_score_update = false;
-        
     }
     
    SDL_RenderCopy(renderer, left_paddle.Message, NULL, &left_paddle.Message_rect);
@@ -364,6 +362,8 @@ void Game::reset() {
 	
 	right_paddle.x = float(WIND_WIDTH) - 2 * right_paddle.WIDTH;
 	right_paddle.y = float(WIND_HEIGHT)/2.0f;
+	
+	number_collisions++;
 	
 }
 

@@ -44,6 +44,8 @@ private:
 	
 	bool isPaused;
 	
+	unsigned int number_collisions = 0;
+	
     Paddle left_paddle = {SDL_Rect{WIND_WIDTH * 4 / 10, WIND_HEIGHT / 12, 30, 30}};
     Paddle right_paddle = {SDL_Rect{WIND_WIDTH * 6 / 10 - 12, WIND_HEIGHT/ 12, 30, 30}};
     

@@ -14,10 +14,13 @@ class Paddle {
 	// Paddle position
     float x = 0;
     float y = 0;
+    
+    bool move_status = true;
 	
 	// Paddle dimensions
     static constexpr float HEIGHT = 95.0f;
     static constexpr float WIDTH = 8.0f;
     
     SDL_Texture* Message = nullptr;   /* To hold Player's score */
+    
 };
