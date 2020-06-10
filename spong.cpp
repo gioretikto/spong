@@ -6,6 +6,7 @@ Game::Game()
 ,ticksCount(0)
 ,isRunning(true)
 ,isPaused(true)
+,number_collisions(0)
 ,score_sound(nullptr)
 ,left_score_update(false)
 ,right_score_update(false)
@@ -210,10 +211,10 @@ void Game::UpdateGame()
 	ball.y += ball.vel_y * deltaTime;
 	
 	// Did the ball go off the screen? (if so, end game)
-	if (ball.x <= 0.0f) {
+	if (ball.x <= 0.0f)
+	{
 		right_paddle.score++;
 		right_score_update = true;
-		std::cout << right_paddle.score << std::endl;
 		reset();		
 	}
 	
@@ -256,11 +257,11 @@ void Game::UpdateGame()
   		if (ball.x > float(WIND_WIDTH)*3/5 && right_paddle.move_status) {
   		
 	  		if (ball.y > right_paddle.y + right_paddle.HEIGHT/2.0f) {  // If the ball is below the center of the paddle
-				right_paddle.y = right_paddle.y + ball.vel_x/(40-number_collisions/100);       // Move downwards
+				right_paddle.y = right_paddle.y + ball.vel_x/(40-number_collisions/180);       // Move downwards
 	  		}
 	  		
 	  		else if (ball.y < right_paddle.y + right_paddle.HEIGHT/2.0f) {  				// If the ball is above the center of the paddle
-				right_paddle.y  = right_paddle.y - ball.vel_x/(40-number_collisions/100);   // Move upwards
+				right_paddle.y  = right_paddle.y - ball.vel_x/(40-number_collisions/180);   // Move upwards
 			}	
 		}
  		
@@ -363,8 +364,7 @@ void Game::reset() {
 	right_paddle.x = float(WIND_WIDTH) - 2 * right_paddle.WIDTH;
 	right_paddle.y = float(WIND_HEIGHT)/2.0f;
 	
-	number_collisions++;
-	
+	number_collisions = 0;	
 }
 
 void Game::textRender(Paddle& paddle) {

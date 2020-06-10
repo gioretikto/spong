@@ -1,6 +1,6 @@
 CXX = g++
 
-CXXFLAGS = `pkg-config --cflags --libs sdl2` -g -fsanitize=address -lSDL2_mixer -lSDL2_ttf -Wall -std=c++17 -Wextra
+CXXFLAGS = `pkg-config --cflags --libs sdl2` -lSDL2_mixer -lSDL2_ttf -Wall -std=c++17 -Wextra
 
 ifeq ($(SYSTEM), SunOS)
 	CFLAGS+= -D__EXTENSIONS__
